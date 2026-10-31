@@ -1,26 +1,119 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Couleurs de marque — DYNAMIQUES via variables CSS */
+  --color-secky-blue-900: var(--brand-900, #0A1633);
+  --color-secky-blue-800: var(--brand-700, #1A3F94);
+  --color-secky-blue-600: var(--brand-600, #105BAE);
+  --color-secky-cyan-400: #3AACE8;
+  --color-secky-blue-100: var(--brand-100, #DCEEFB);
+  --color-secky-blue-50: var(--brand-50, #F0F6FC);
+  
+  --color-neutral-50: #F8FAFC;
+  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0;
+  --color-neutral-500: #64748B;
+  
+  --color-status-success: #10B981;
+  --color-status-warning: #F59E0B;
+  --color-status-error: #EF4444;
+  --color-status-info: #6D3FB2;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #F8FAFC;
+    --foreground: #0C1D43;
+    --surface: #FFFFFF;
+    --surface-2: #F1F5F9;
+    --border: #E2E8F0;
+    --muted: #64748B;
+    
+    /* Valeurs par défaut de la marque SeckyPay */
+    --brand-600: #105BAE;
+    --brand-700: #1A3F94;
+    --brand-900: #0A1633;
+    --brand-100: #DCEEFB;
+    --brand-50: #F0F6FC;
+  }
+  
+  .dark {
+    --background: #08142B;
+    --foreground: #E8EEF9;
+    --surface: #0C1D43;
+    --surface-2: #16306A;
+    --border: #28407A;
+    --muted: #A9B8D4;
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dark .bg-white { background-color: var(--surface) !important; }
+  .dark .bg-\[\#F8FAFC\] { background-color: var(--background) !important; }
+  .dark .bg-\[\#FAFAFA\] { background-color: var(--background) !important; }
+  .dark .bg-neutral-50 { background-color: var(--surface-2) !important; }
+  .dark .bg-neutral-100 { background-color: var(--surface-2) !important; }
+  .dark .border-neutral-100 { border-color: var(--border) !important; }
+  .dark .border-neutral-200 { border-color: var(--border) !important; }
+  .dark .text-secky-blue-900 { color: var(--foreground) !important; }
+  .dark .text-neutral-500 { color: var(--muted) !important; }
+  .dark .text-neutral-600 { color: var(--muted) !important; }
+}
+
+@layer components {
+  .bg-secky-gradient {
+    background-image: linear-gradient(135deg, var(--brand-600, #105BAE) 0%, var(--brand-700, #1A3F94) 60%, var(--brand-900, #0A1633) 100%);
+  }
+  
+  .card-bank-texture {
+    background-color: var(--brand-900, #0A1633);
+    background-image: 
+      radial-gradient(circle at 10% 10%, rgba(58, 172, 232, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 90% 90%, rgba(26, 63, 148, 0.8) 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.03) 10px, rgba(255, 255, 255, 0.03) 20px);
+    box-shadow: 0 30px 60px -15px rgba(10, 22, 51, 0.5), inset 0 1px 2px rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .card-3d {
+    background: linear-gradient(145deg, var(--surface), var(--surface-2));
+    box-shadow: 15px 15px 30px rgba(0,0,0,0.03), -15px -15px 30px rgba(255,255,255,0.5);
+    border: 1px solid var(--border);
+  }
+
+  .dark .card-3d {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05);
+    background: linear-gradient(145deg, var(--surface), var(--surface-2));
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-float-delayed { animation: float 8s ease-in-out infinite; }
 }

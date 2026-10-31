@@ -1,0 +1,39 @@
+﻿{
+  "name": "SeckyPay",
+  "short_name": "SeckyPay",
+  "description": "Encaissez et gérez vos paiements mobiles en Afrique de l'Ouest.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#105BAE",
+  "lang": "fr",
+  "categories": ["finance", "business"],
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Encaisser",
+      "url": "/encaisser",
+      "description": "Créer un lien de paiement"
+    },
+    {
+      "name": "Transactions",
+      "url": "/transactions",
+      "description": "Voir l'historique"
+    }
+  ]
+}
