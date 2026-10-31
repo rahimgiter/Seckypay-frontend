@@ -325,7 +325,7 @@ export default function LandingPage() {
               <Geographies geography={geoUrl}>
                 {({ geographies }) =>
                   geographies.map((geo) => {
-                    const countryName = geo.properties.name;
+                    const countryName = (geo.properties as any)?.name || "";
                     const westAfrica = ["Burkina Faso", "Côte d'Ivoire", "Ivory Coast", "Senegal", "Benin", "Togo", "Mali", "Niger", "Guinea", "Guinea-Bissau", "Sierra Leone", "Liberia", "Nigeria", "Ghana", "Mauritania", "Gambia", "Cape Verde"];
                     const africa = ["Burkina Faso", "Côte d'Ivoire", "Ivory Coast", "Senegal", "Benin", "Togo", "Mali", "Niger", "Guinea", "Guinea-Bissau", "Sierra Leone", "Liberia", "Nigeria", "Ghana", "Mauritania", "Gambia", "Cape Verde", "Algeria", "Angola", "Botswana", "Burundi", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Democratic Republic of the Congo", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon", "Kenya", "Lesotho", "Libya", "Madagascar", "Malawi", "Mauritius", "Morocco", "Mozambique", "Namibia", "Rwanda", "Sao Tome and Principe", "Seychelles", "Somalia", "South Africa", "South Sudan", "Sudan", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe"];
 
@@ -352,7 +352,7 @@ export default function LandingPage() {
                           default: { outline: "none" },
                           hover: { fill: isBurkina ? "#1A3F94" : (isAfrica ? "#3AACE8" : "#F1F5F9"), outline: "none", cursor: isAfrica ? "pointer" : "default" },
                           pressed: { outline: "none" },
-                        }}
+                        } as any}
                       />
                     );
                   })

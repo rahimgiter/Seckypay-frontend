@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       amount: parseInt(body.amount),
       status: "pending", // Toujours en attente au début
       operator: body.operator || "Orange Money",
+      companyId: "ENT-001",
       merchantName: "Secky Tech",
     });
 

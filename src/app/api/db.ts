@@ -9,7 +9,7 @@ export interface Transaction {
   operator: string;
   date: string;
   merchantName: string;
-  companyId: string;
+  companyId?: string;
 }
 
 export interface Company {
