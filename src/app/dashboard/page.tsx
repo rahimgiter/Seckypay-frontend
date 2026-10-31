@@ -5,6 +5,7 @@ import { Bell, ArrowUpRight, ArrowDownLeft, Wallet, Receipt, Lock, PieChart, Mor
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
+import MobileDrawer from "@/components/MobileDrawer";
 import BrandAvatar from "@/components/BrandAvatar";
 import { useBrand } from "@/contexts/BrandContext";
 
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [greeting, setGreeting] = useState("");
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -46,16 +48,21 @@ export default function Dashboard() {
         <Sidebar />
       </Suspense>
 
+      <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+
       <main className="flex-1 md:ml-64 pb-32 md:pb-8">
         
         <header className="pt-8 pb-4 px-6 flex justify-between items-center bg-white md:bg-transparent">
-          <div className="flex items-center gap-3 md:hidden">
+          <button 
+            onClick={() => setIsDrawerOpen(true)} 
+            className="flex items-center gap-3 md:hidden active:opacity-70 transition-opacity"
+          >
             <BrandAvatar size="md" showRing />
-            <div>
+            <div className="text-left">
               <p className="text-[13px] text-neutral-500 font-medium">{greeting}</p>
               <h1 className="text-lg font-bold text-secky-blue-900 leading-tight">{branding.brandName}</h1>
             </div>
-          </div>
+          </button>
 
           <div className="hidden md:block">
             <h1 className="text-2xl font-extrabold text-secky-blue-900 tracking-tight">Vue d'ensemble</h1>
