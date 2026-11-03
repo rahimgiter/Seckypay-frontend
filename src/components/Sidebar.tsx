@@ -1,7 +1,7 @@
 ﻿"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Receipt, Wallet, Lock, LogOut, PieChart, Bell, Users, Palette, FileText, TrendingUp, Settings, HelpCircle, User } from "lucide-react";
+import { Home, Receipt, Wallet, Lock, LogOut, PieChart, Bell, Users, Palette, FileText, TrendingUp, Settings, HelpCircle, User, Building2, ArrowUpRight, Send, CreditCard } from "lucide-react";
 import BrandAvatar from "./BrandAvatar";
 import { useBrand } from "@/contexts/BrandContext";
 
@@ -12,11 +12,14 @@ export default function Sidebar() {
   const mainMenu = [
     { name: "Tableau de bord", href: "/dashboard", icon: Home },
     { name: "Encaisser", href: "/encaisser", icon: Wallet },
+    { name: "Envoyer", href: "/envoyer", icon: Send },
     { name: "Transactions", href: "/transactions", icon: Receipt },
     { name: "Clôture", href: "/cloture", icon: Lock },
   ];
 
   const businessMenu = [
+    { name: "Comptes", href: "/comptes", icon: CreditCard },
+    { name: "Bénéficiaires", href: "/beneficiaires", icon: User },
     { name: "Finances", href: "/finances", icon: PieChart },
     { name: "Règlements", href: "/reglements", icon: TrendingUp },
     { name: "Rapports", href: "/rapports", icon: FileText },
@@ -25,6 +28,7 @@ export default function Sidebar() {
   const settingsMenu = [
     { name: "Équipe", href: "/equipe", icon: Users },
     { name: "Ma Marque", href: "/marque", icon: Palette },
+    { name: "Abonnement", href: "/abonnement", icon: Building2 },
     { name: "Notifications", href: "/notifications", icon: Bell },
     { name: "Paramètres", href: "/parametres", icon: Settings },
   ];

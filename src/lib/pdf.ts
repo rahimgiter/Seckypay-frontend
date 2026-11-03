@@ -13,8 +13,15 @@ interface ReceiptData {
   companyInfo?: CompanyInfo;
 }
 
+// Fonction utilitaire pour formater un montant proprement
+function formatAmountForPDF(amount: number): string {
+  return amount.toLocaleString("fr-FR")
+    .replace(/\u202f/g, " ") // Remplace l'espace fine insécable par un espace normal
+    .replace(/\u00a0/g, " "); // Remplace l'espace insécable par un espace normal
+}
+
 // =========================================================
-// REÇU PDF (A5) - Avec en-tête et pied de page professionnels
+// REÇU PDF (A5)
 // =========================================================
 export function generateReceiptPDF(data: ReceiptData) {
   const doc = new jsPDF({ format: "a5", unit: "mm" });
@@ -25,17 +32,14 @@ export function generateReceiptPDF(data: ReceiptData) {
   const meta = getDocumentMetadata("Reçu de paiement");
 
   // ---------- EN-TÊTE ----------
-  // Bandeau de marque
   doc.setFillColor(brandRgb[0], brandRgb[1], brandRgb[2]);
   doc.rect(0, 0, pageWidth, 5, "F");
 
-  // Nom de l'entreprise
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.setTextColor(12, 29, 67);
   doc.text(company.legalName, 15, 18);
 
-  // Coordonnées
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(120, 120, 120);
@@ -43,7 +47,6 @@ export function generateReceiptPDF(data: ReceiptData) {
   doc.text(`${company.phone} · ${company.email}`, 15, 28);
   doc.text(`RCCM: ${company.rccm} · IFU: ${company.ifu}`, 15, 32);
 
-  // Numéro de document (en haut à droite)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(brandRgb[0], brandRgb[1], brandRgb[2]);
@@ -52,7 +55,6 @@ export function generateReceiptPDF(data: ReceiptData) {
   doc.setTextColor(120, 120, 120);
   doc.text(meta.generatedAt, pageWidth - 15, 23, { align: "right" });
 
-  // Ligne de séparation
   doc.setDrawColor(brandRgb[0], brandRgb[1], brandRgb[2]);
   doc.setLineWidth(0.5);
   doc.line(15, 37, pageWidth - 15, 37);
@@ -64,17 +66,36 @@ export function generateReceiptPDF(data: ReceiptData) {
   doc.text("REÇU DE PAIEMENT", pageWidth / 2, 48, { align: "center" });
 
   // ---------- MONTANT ----------
-  doc.setFontSize(28);
+  // Utilisation de la fonction de formatage propre
+  const formattedAmount = formatAmountForPDF(data.amount);
+  
+  doc.setFontSize(26); // Légèrement réduit pour éviter les débordements
   doc.setTextColor(brandRgb[0], brandRgb[1], brandRgb[2]);
-  doc.text(`${data.amount.toLocaleString("fr-FR")} FCFA`, pageWidth / 2, 62, { align: "center" });
+  doc.text(`${formattedAmount} FCFA`, pageWidth / 2, 62, { align: "center" });
 
-  // Badge statut
+  // ---------- BADGE STATUT (avec coche vectorielle) ----------
+  const badgeWidth = 60;
+  const badgeHeight = 8;
+  const badgeX = (pageWidth - badgeWidth) / 2;
+  const badgeY = 67;
+  
+  // Fond vert clair
   doc.setFillColor(209, 250, 229);
-  doc.roundedRect(pageWidth / 2 - 25, 67, 50, 7, 3, 3, "F");
+  doc.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 4, 4, "F");
+  
+  // Texte "PAIEMENT RÉUSSI"
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(21, 127, 59);
-  doc.text("✓ PAIEMENT RÉUSSI", pageWidth / 2, 71.5, { align: "center" });
+  doc.text("PAIEMENT RÉUSSI", pageWidth / 2 + 3, badgeY + 5.5, { align: "center" });
+  
+  // Coche vectorielle (dessinée manuellement)
+  const checkX = badgeX + 10;
+  const checkY = badgeY + 4.5;
+  doc.setDrawColor(21, 127, 59);
+  doc.setLineWidth(0.8);
+  doc.line(checkX - 2, checkY, checkX, checkY + 2);
+  doc.line(checkX, checkY + 2, checkX + 3, checkY - 2);
 
   // ---------- DÉTAILS ----------
   const detailsStartY = 85;
@@ -105,12 +126,10 @@ export function generateReceiptPDF(data: ReceiptData) {
   // ---------- PIED DE PAGE ----------
   const footerY = pageHeight - 20;
   
-  // Ligne de séparation
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.2);
   doc.line(15, footerY - 5, pageWidth - 15, footerY - 5);
 
-  // Texte du pied de page
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(150, 150, 150);
@@ -122,7 +141,7 @@ export function generateReceiptPDF(data: ReceiptData) {
 }
 
 // =========================================================
-// EXPORT GÉNÉRIQUE PDF (A4) - Avec en-tête et pied de page
+// EXPORT GÉNÉRIQUE PDF (A4)
 // =========================================================
 interface ExportData {
   title: string;
@@ -142,19 +161,15 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
   const meta = getDocumentMetadata(title);
   const brandRgb = hexToRgb(brandColor);
 
-  // ---------- EN-TÊTE (sur chaque page) ----------
   const drawHeader = () => {
-    // Bandeau de marque
     doc.setFillColor(brandRgb[0], brandRgb[1], brandRgb[2]);
     doc.rect(0, 0, pageWidth, 4, "F");
 
-    // Logo texte / nom
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(12, 29, 67);
     doc.text(company.legalName, 14, 15);
 
-    // Coordonnées
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(120, 120, 120);
@@ -162,7 +177,6 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
     doc.text(`${company.phone} · ${company.email} · ${company.website}`, 14, 24);
     doc.text(`RCCM: ${company.rccm} · IFU: ${company.ifu}`, 14, 28);
 
-    // Numéro de document
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(brandRgb[0], brandRgb[1], brandRgb[2]);
@@ -172,18 +186,15 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
     doc.setTextColor(120, 120, 120);
     doc.text(`Généré le ${meta.generatedAt}`, pageWidth - 14, 20, { align: "right" });
 
-    // Ligne
     doc.setDrawColor(brandRgb[0], brandRgb[1], brandRgb[2]);
     doc.setLineWidth(0.5);
     doc.line(14, 32, pageWidth - 14, 32);
 
-    // Titre du document
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(12, 29, 67);
     doc.text(title, 14, 42);
 
-    // Sous-titre
     if (subtitle) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
@@ -191,7 +202,6 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
       doc.text(subtitle, 14, 47);
     }
 
-    // Période
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
@@ -200,7 +210,6 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
 
   drawHeader();
 
-  // ---------- TABLEAU ----------
   autoTable(doc, {
     startY: subtitle ? 58 : 53,
     head: [columns],
@@ -215,25 +224,21 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
     alternateRowStyles: { fillColor: [248, 250, 252] },
     margin: { left: 14, right: 14, bottom: 25 },
     didDrawPage: (data) => {
-      // Ré-dessiner l'en-tête sur les nouvelles pages
       if (data.pageNumber > 1) {
         drawHeader();
       }
     },
   });
 
-  // ---------- PIED DE PAGE ----------
   const pageCount = (doc as any).internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const footerY = pageHeight - 15;
     
-    // Ligne de séparation
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.2);
     doc.line(14, footerY - 5, pageWidth - 14, footerY - 5);
 
-    // Texte
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(150, 150, 150);
@@ -241,7 +246,6 @@ export function generateExportPDF({ title, subtitle, period, columns, rows, comp
     doc.text("Compatible SYSCOHADA · Ne remplace pas la comptabilité officielle", pageWidth / 2, footerY, { align: "center" });
     doc.text(`Page ${i} / ${pageCount}`, pageWidth - 14, footerY, { align: "right" });
     
-    // Mention de traçabilité
     doc.setTextColor(180, 180, 180);
     doc.setFontSize(6);
     doc.text(`Document ${meta.reference} · Vérifiable sur ${company.website}`, pageWidth / 2, footerY + 4, { align: "center" });

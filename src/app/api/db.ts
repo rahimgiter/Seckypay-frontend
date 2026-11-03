@@ -1,5 +1,4 @@
 ﻿// Base de données simulée - MVP SeckyPay v1.1
-// Refonte selon document explicatif MVP (Nov 2026)
 
 export type TransactionStatus = "succeeded" | "pending" | "failed" | "to_verify" | "refunded";
 export type TransactionType = "in" | "out";
@@ -16,13 +15,12 @@ export interface Transaction {
   date: string;
   merchantName: string;
   companyId?: string;
-  // NOUVEAUX CHAMPS MVP v1.1
-  type: TransactionType;           // "in" = entrée, "out" = sortie
-  category: string;                 // Vente, Salaire, Fournisseur, Dépense, Autre
+  type: TransactionType;
+  category: string;
   note?: string;
-  fees: number;                     // frais d'opérateur
-  feesSource: FeesSource;           // "real" ou "estimated"
-  source: TransactionSource;        // origine de l'enregistrement
+  fees: number;
+  feesSource: FeesSource;
+  source: TransactionSource;
 }
 
 export interface Company {
@@ -46,12 +44,31 @@ export interface Branding {
 
 export interface CashRegister {
   date: string;
-  openingBalance: number;          // solde d'ouverture saisi
-  closingBalance: number | null;   // solde réel de clôture saisi
+  openingBalance: number;
+  closingBalance: number | null;
   status: "open" | "closed";
-  gap: number | null;               // écart calculé
+  gap: number | null;
   gapReason?: string;
   closedAt?: string;
+}
+
+export interface MobileMoneyAccount {
+  id: string;
+  operator: "Orange Money" | "Wave" | "Moov Money";
+  phone: string;
+  holderName: string;
+  label: string;
+  status: "pending" | "verified";
+  isDefault: boolean;
+  createdAt: string;
+}
+
+export interface Beneficiary {
+  id: string;
+  name: string;
+  phone: string;
+  operator: "Orange Money" | "Wave" | "Moov Money";
+  createdAt: string;
 }
 
 export const mockDb = {
@@ -62,7 +79,6 @@ export const mockDb = {
     isCustom: false,
   } as Branding,
 
-  // Registre de caisse du jour
   cashRegister: {
     date: new Date().toISOString().split("T")[0],
     openingBalance: 200000,
@@ -70,6 +86,49 @@ export const mockDb = {
     status: "open",
     gap: null,
   } as CashRegister,
+
+  // Comptes mobile money du marchand
+  accounts: [
+    { id: "ACC-001", operator: "Orange Money", phone: "+226 70 11 22 33", holderName: "Secky Tech", label: "Compte principal", status: "verified", isDefault: true, createdAt: "01/09/2026" },
+    { id: "ACC-002", operator: "Wave", phone: "+226 65 44 55 66", holderName: "Secky Tech", label: "Compte secondaire", status: "verified", isDefault: false, createdAt: "15/09/2026" },
+  ] as MobileMoneyAccount[],
+
+  addAccount: (account: Omit<MobileMoneyAccount, "id" | "createdAt">) => {
+    const newAccount: MobileMoneyAccount = {
+      ...account,
+      id: `ACC-${String(mockDb.accounts.length + 1).padStart(3, "0")}`,
+      createdAt: new Date().toLocaleDateString("fr-FR"),
+    };
+    mockDb.accounts.push(newAccount);
+    return newAccount;
+  },
+
+  updateAccount: (id: string, data: Partial<MobileMoneyAccount>) => {
+    const account = mockDb.accounts.find(a => a.id === id);
+    if (account) Object.assign(account, data);
+    return account;
+  },
+
+  deleteAccount: (id: string) => {
+    mockDb.accounts = mockDb.accounts.filter(a => a.id !== id);
+    return true;
+  },
+
+  // Bénéficiaires
+  beneficiaries: [
+    { id: "BEN-001", name: "Aminata Sawadogo", phone: "+226 70 22 33 44", operator: "Orange Money", createdAt: "10/10/2026" },
+    { id: "BEN-002", name: "Fournisseur Faso", phone: "+226 65 77 88 99", operator: "Wave", createdAt: "12/10/2026" },
+  ] as Beneficiary[],
+
+  addBeneficiary: (benef: Omit<Beneficiary, "id" | "createdAt">) => {
+    const newBenef: Beneficiary = {
+      ...benef,
+      id: `BEN-${String(mockDb.beneficiaries.length + 1).padStart(3, "0")}`,
+      createdAt: new Date().toLocaleDateString("fr-FR"),
+    };
+    mockDb.beneficiaries.push(newBenef);
+    return newBenef;
+  },
 
   companies: [
     { id: "ENT-001", name: "Secky Tech", sector: "Services", status: "active", risk: "low", volume: 850000, joined: "12/01/2026", ownerName: "Kofi B.", ownerEmail: "kofi@seckytech.com" },
@@ -80,19 +139,12 @@ export const mockDb = {
   ] as Company[],
 
   transactions: [
-    // ENTRÉES (in)
     { id: "TX-1001", subject: "Cantine Octobre", reference: "CMD-1024", amount: 25000, status: "succeeded", operator: "Orange Money", date: "26/10/2026 10:45", merchantName: "Secky Tech", companyId: "ENT-001", type: "in", category: "Vente", fees: 250, feesSource: "real", source: "seckypay", note: "Paiement cantine" },
     { id: "TX-1003", subject: "Vente Marchandise", reference: "CMD-1026", amount: 12500, status: "succeeded", operator: "Moov Money", date: "25/10/2026 16:20", merchantName: "École Les Lauriers", companyId: "ENT-002", type: "in", category: "Vente", fees: 125, feesSource: "real", source: "seckypay" },
     { id: "TX-1005", subject: "Achat fournitures", reference: "CMD-1028", amount: 35000, status: "succeeded", operator: "Wave", date: "25/10/2026 11:00", merchantName: "Boutique Awa", companyId: "ENT-003", type: "in", category: "Vente", fees: 350, feesSource: "real", source: "seckypay" },
-
-    // SORTIES (out)
     { id: "TX-1006", subject: "Salaire Aminata", reference: "OUT-001", amount: 50000, status: "succeeded", operator: "Wave", date: "26/10/2026 09:30", merchantName: "Secky Tech", companyId: "ENT-001", type: "out", category: "Salaire", fees: 500, feesSource: "real", source: "seckypay", note: "Salaire octobre" },
     { id: "TX-1007", subject: "Fournisseur Faso", reference: "OUT-002", amount: 25000, status: "succeeded", operator: "Orange Money", date: "25/10/2026 14:10", merchantName: "Secky Tech", companyId: "ENT-001", type: "out", category: "Fournisseur", fees: 250, feesSource: "estimated", source: "seckypay" },
-
-    // EN ATTENTE
     { id: "TX-1002", subject: "Frais de scolarité", reference: "CMD-1025", amount: 50000, status: "pending", operator: "Wave", date: "26/10/2026 09:30", merchantName: "Secky Tech", companyId: "ENT-001", type: "in", category: "Vente", fees: 0, feesSource: "estimated", source: "seckypay" },
-
-    // ÉCHOUÉE
     { id: "TX-1004", subject: "Abonnement", reference: "CMD-1027", amount: 5000, status: "failed", operator: "Orange Money", date: "25/10/2026 14:10", merchantName: "École Les Lauriers", companyId: "ENT-002", type: "in", category: "Vente", fees: 0, feesSource: "estimated", source: "seckypay" },
   ] as Transaction[],
 
@@ -123,7 +175,6 @@ export const mockDb = {
     return mockDb.branding;
   },
 
-  // Clôture de caisse
   openCashRegister: (openingBalance: number) => {
     mockDb.cashRegister = {
       date: new Date().toISOString().split("T")[0],
@@ -136,7 +187,6 @@ export const mockDb = {
   },
 
   closeCashRegister: (closingBalance: number, gapReason?: string) => {
-    // Calculer les totaux du jour
     const today = new Date().toISOString().split("T")[0];
     const todayTx = mockDb.transactions.filter(tx => {
       const txDate = tx.date.split(" ")[0];

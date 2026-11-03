@@ -1,14 +1,14 @@
 ﻿"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Receipt, Plus, PieChart, User } from "lucide-react";
+import { Home, Receipt, Plus, Send, User } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
 
   return (
     <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none">
-      <nav className="bg-white border border-neutral-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] flex items-center justify-between px-6 py-3 w-full max-w-sm pointer-events-auto relative">
+      <nav className="bg-white border border-neutral-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] flex items-center justify-between px-4 py-3 w-full max-w-sm pointer-events-auto relative">
         
         <Link href="/dashboard" className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/dashboard" ? "text-secky-blue-600" : "text-neutral-400 hover:text-secky-blue-600"}`}>
           <Home size={22} strokeWidth={pathname === "/dashboard" ? 2.5 : 2} />
@@ -28,10 +28,9 @@ export default function BottomNav() {
           </Link>
         </div>
 
-        {/* Remplacé Clôture par Finances */}
-        <Link href="/finances" className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/finances" ? "text-secky-blue-600" : "text-neutral-400 hover:text-secky-blue-600"}`}>
-          <PieChart size={22} strokeWidth={pathname === "/finances" ? 2.5 : 2} />
-          <span className="text-[10px] font-semibold">Finances</span>
+        <Link href="/envoyer" className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/envoyer" ? "text-secky-blue-600" : "text-neutral-400 hover:text-secky-blue-600"}`}>
+          <Send size={22} strokeWidth={pathname === "/envoyer" ? 2.5 : 2} />
+          <span className="text-[10px] font-semibold">Envoyer</span>
         </Link>
 
         <Link href="/profil" className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/profil" ? "text-secky-blue-600" : "text-neutral-400 hover:text-secky-blue-600"}`}>
