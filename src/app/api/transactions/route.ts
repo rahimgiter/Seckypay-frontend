@@ -3,7 +3,6 @@ import { mockDb } from "../db";
 
 // GET : Récupérer toutes les transactions
 export async function GET() {
-  // Simulation d'un petit délai réseau
   await new Promise((resolve) => setTimeout(resolve, 500));
   
   return NextResponse.json({ 
@@ -12,7 +11,7 @@ export async function GET() {
   });
 }
 
-// POST : Créer une nouvelle transaction
+// POST : Créer une nouvelle transaction (lien de paiement = entrée)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -28,15 +27,25 @@ export async function POST(request: Request) {
     // Simulation d'un délai
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Création de la transaction
+    // Création de la transaction avec TOUS les champs MVP
+    const amount = parseInt(body.amount);
+    const estimatedFee = Math.round(amount * 0.01); // 1% estimé par défaut (Orange)
+
     const newTransaction = mockDb.addTransaction({
       subject: body.subject,
       reference: body.reference || "",
-      amount: parseInt(body.amount),
-      status: "pending", // Toujours en attente au début
+      amount: amount,
+      status: "pending",
       operator: body.operator || "Orange Money",
-      companyId: "ENT-001",
       merchantName: "Secky Tech",
+      companyId: "ENT-001",
+      // Nouveaux champs MVP
+      type: "in",                          // Lien de paiement = entrée
+      category: body.category || "Vente",  // Catégorie par défaut
+      note: body.note || undefined,
+      fees: estimatedFee,
+      feesSource: "estimated",             // Sera "real" si l'opérateur confirme
+      source: "seckypay",                  // Vient de SeckyPay
     });
 
     return NextResponse.json({ data: newTransaction }, { status: 201 });

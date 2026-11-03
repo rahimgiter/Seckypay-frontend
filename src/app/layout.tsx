@@ -1,9 +1,5 @@
 ﻿import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-import { BrandProvider } from "@/contexts/BrandContext";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "SeckyPay - Encaissement simple et sécurisé",
@@ -54,8 +50,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <BrandProvider>{children}</BrandProvider>
+      <body className="font-sans antialiased">
+        {children}
       </body>
     </html>
   );
