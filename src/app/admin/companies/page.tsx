@@ -1,12 +1,15 @@
 ﻿"use client";
 import { Suspense, useState, useEffect } from "react";
-import { Search, Filter, MoreVertical, ExternalLink, Loader2, ArrowLeft, Monitor } from "lucide-react";
+import { Search, Filter, MoreVertical, ExternalLink, Loader2, ArrowLeft, Building2, Store } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminMobileWarning from "@/components/AdminMobileWarning";
 import Link from "next/link";
 
+type AccountType = "all" | "b2b" | "b2c";
+
 export default function AdminCompanies() {
   const [search, setSearch] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>("all");
   const [companies, setCompanies] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,7 +28,10 @@ export default function AdminCompanies() {
     fetchCompanies();
   }, []);
 
-  const filtered = companies.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+  let filtered = companies.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+  if (accountType !== "all") {
+    filtered = filtered.filter(c => c.accountType === accountType);
+  }
 
   const getStatusBadge = (status: string) => {
     switch(status) {
@@ -34,6 +40,18 @@ export default function AdminCompanies() {
       case "suspended": return <span className="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-status-error uppercase whitespace-nowrap">Suspendu</span>;
       default: return null;
     }
+  };
+
+  const getAccountTypeBadge = (type: string | undefined) => {
+    if (type === "b2b") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-secky-blue-50 text-secky-blue-700 uppercase"><Building2 size={10} /> B2B</span>;
+    if (type === "b2c") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 uppercase"><Store size={10} /> B2C</span>;
+    return null;
+  };
+
+  const counts = {
+    all: companies.length,
+    b2b: companies.filter(c => c.accountType === "b2b").length,
+    b2c: companies.filter(c => c.accountType === "b2c").length,
   };
 
   return (
@@ -49,7 +67,7 @@ export default function AdminCompanies() {
           <header className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-extrabold text-secky-blue-900 tracking-tight">Entreprises</h1>
-              <p className="text-sm text-neutral-500 font-medium mt-1">Gérez toutes les entreprises de la plateforme.</p>
+              <p className="text-sm text-neutral-500 font-medium mt-1">Gérez les comptes B2B et B2C de la plateforme.</p>
             </div>
             <div className="flex gap-3">
               <Link href="/dashboard" className="h-10 px-4 bg-white border border-neutral-200 text-secky-blue-900 font-bold text-sm rounded-xl hover:bg-neutral-50 transition-colors flex items-center gap-2">
@@ -62,15 +80,29 @@ export default function AdminCompanies() {
             </div>
           </header>
 
+          {/* Filtres par type de compte */}
+          <div className="grid grid-cols-3 gap-2 mb-4 max-w-lg">
+            <button onClick={() => setAccountType("all")} className={`h-10 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${accountType === "all" ? "bg-secky-blue-600 text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-secky-blue-300"}`}>
+              Toutes ({counts.all})
+            </button>
+            <button onClick={() => setAccountType("b2b")} className={`h-10 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${accountType === "b2b" ? "bg-secky-blue-600 text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-secky-blue-300"}`}>
+              <Building2 size={14} /> B2B ({counts.b2b})
+            </button>
+            <button onClick={() => setAccountType("b2c")} className={`h-10 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${accountType === "b2c" ? "bg-secky-blue-600 text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-secky-blue-300"}`}>
+              <Store size={14} /> B2C ({counts.b2c})
+            </button>
+          </div>
+
           <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden w-full">
             {isLoading ? (
               <div className="flex justify-center py-20"><Loader2 size={32} className="animate-spin text-secky-blue-600" /></div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-neutral-50 border-b border-neutral-100">
                       <th className="p-4 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Entreprise</th>
+                      <th className="p-4 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Type</th>
                       <th className="p-4 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Secteur</th>
                       <th className="p-4 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-right">Volume (30j)</th>
                       <th className="p-4 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Statut</th>
@@ -80,7 +112,7 @@ export default function AdminCompanies() {
                   </thead>
                   <tbody className="divide-y divide-neutral-50">
                     {filtered.map((c) => (
-                      <tr key={c.id} className="hover:bg-neutral-50 transition-colors group">
+                      <tr key={c.id} className="hover:bg-neutral-50 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-secky-blue-100 flex items-center justify-center font-bold text-secky-blue-600 text-xs shrink-0">{c.name.substring(0, 2).toUpperCase()}</div>
@@ -90,6 +122,7 @@ export default function AdminCompanies() {
                             </div>
                           </div>
                         </td>
+                        <td className="p-4">{getAccountTypeBadge(c.accountType)}</td>
                         <td className="p-4 text-sm font-medium text-neutral-600 whitespace-nowrap">{c.sector}</td>
                         <td className="p-4 text-sm font-bold text-secky-blue-900 text-right tabular-nums whitespace-nowrap">{c.volume.toLocaleString("fr-FR")} F</td>
                         <td className="p-4">{getStatusBadge(c.status)}</td>

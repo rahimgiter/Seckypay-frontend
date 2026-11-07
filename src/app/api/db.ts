@@ -1,5 +1,8 @@
-﻿// Base de données simulée - MVP SeckyPay v1.1
+﻿// Base de données simulée - MVP SeckyPay v1.1 + Sprint 4
 
+// =========================================================
+// TYPES TRANSACTIONS
+// =========================================================
 export type TransactionStatus = "succeeded" | "pending" | "failed" | "to_verify" | "refunded";
 export type TransactionType = "in" | "out";
 export type FeesSource = "real" | "estimated";
@@ -23,6 +26,11 @@ export interface Transaction {
   source: TransactionSource;
 }
 
+// =========================================================
+// TYPES ENTREPRISES (Sprint 4 : B2B/B2C)
+// =========================================================
+export type AccountType = "b2b" | "b2c";
+
 export interface Company {
   id: string;
   name: string;
@@ -33,8 +41,30 @@ export interface Company {
   joined: string;
   ownerName: string;
   ownerEmail: string;
+  accountType?: AccountType;
 }
 
+// =========================================================
+// TYPES ÉQUIPE INTERNE (Sprint 4)
+// =========================================================
+export type InternalRole = "super_admin" | "b2b_manager" | "b2c_manager" | "support" | "finance" | "operations";
+export type InternalStatus = "active" | "inactive" | "invited";
+
+export interface InternalMember {
+  id: string;
+  name: string;
+  email: string;
+  role: InternalRole;
+  status: InternalStatus;
+  joinedAt: string;
+  lastLogin: string;
+  twoFA: boolean;
+  assignedCompanies?: string[];
+}
+
+// =========================================================
+// AUTRES TYPES
+// =========================================================
 export interface Branding {
   brandName: string;
   logoBase64: string | null;
@@ -71,6 +101,9 @@ export interface Beneficiary {
   createdAt: string;
 }
 
+// =========================================================
+// MOCK DB
+// =========================================================
 export const mockDb = {
   branding: {
     brandName: "Secky Tech",
@@ -86,6 +119,40 @@ export const mockDb = {
     status: "open",
     gap: null,
   } as CashRegister,
+
+  // Équipe interne SeckyPay
+  internalTeam: [
+    { id: "TM-001", name: "Kofi Bakayoko", email: "kofi@seckytech.com", role: "super_admin", status: "active", joinedAt: "12/01/2026", lastLogin: "Aujourd'hui, 08:30", twoFA: true, assignedCompanies: [] },
+    { id: "TM-002", name: "Aminata Sawadogo", email: "aminata@seckytech.com", role: "b2b_manager", status: "active", joinedAt: "15/02/2026", lastLogin: "Aujourd'hui, 09:15", twoFA: true, assignedCompanies: ["ENT-001", "ENT-002"] },
+    { id: "TM-003", name: "Oumar Traoré", email: "oumar@seckytech.com", role: "b2c_manager", status: "active", joinedAt: "20/03/2026", lastLogin: "Hier, 17:45", twoFA: false, assignedCompanies: ["ENT-003", "ENT-004"] },
+    { id: "TM-004", name: "Fatou Sanou", email: "fatou@seckytech.com", role: "support", status: "active", joinedAt: "10/04/2026", lastLogin: "Il y a 2 heures", twoFA: true, assignedCompanies: [] },
+    { id: "TM-005", name: "Ibrahim Kaboré", email: "ibrahim@seckytech.com", role: "finance", status: "active", joinedAt: "05/05/2026", lastLogin: "Aujourd'hui, 07:00", twoFA: true, assignedCompanies: [] },
+    { id: "TM-006", name: "Moussa Diallo", email: "moussa@seckytech.com", role: "operations", status: "active", joinedAt: "01/06/2026", lastLogin: "Aujourd'hui, 06:30", twoFA: true, assignedCompanies: [] },
+    { id: "TM-007", name: "Awa Ouédraogo", email: "awa@seckytech.com", role: "b2b_manager", status: "invited", joinedAt: "25/10/2026", lastLogin: "-", twoFA: false, assignedCompanies: [] },
+  ] as InternalMember[],
+
+  addInternalMember: (member: Omit<InternalMember, "id" | "joinedAt" | "lastLogin" | "twoFA">) => {
+    const newMember: InternalMember = {
+      ...member,
+      id: `TM-${String(mockDb.internalTeam.length + 1).padStart(3, "0")}`,
+      joinedAt: new Date().toLocaleDateString("fr-FR"),
+      lastLogin: "-",
+      twoFA: false,
+    };
+    mockDb.internalTeam.push(newMember);
+    return newMember;
+  },
+
+  updateInternalMember: (id: string, data: Partial<InternalMember>) => {
+    const member = mockDb.internalTeam.find(m => m.id === id);
+    if (member) Object.assign(member, data);
+    return member;
+  },
+
+  deleteInternalMember: (id: string) => {
+    mockDb.internalTeam = mockDb.internalTeam.filter(m => m.id !== id);
+    return true;
+  },
 
   // Comptes mobile money du marchand
   accounts: [
@@ -130,14 +197,16 @@ export const mockDb = {
     return newBenef;
   },
 
+  // Entreprises (avec accountType B2B/B2C)
   companies: [
-    { id: "ENT-001", name: "Secky Tech", sector: "Services", status: "active", risk: "low", volume: 850000, joined: "12/01/2026", ownerName: "Kofi B.", ownerEmail: "kofi@seckytech.com" },
-    { id: "ENT-002", name: "École Les Lauriers", sector: "Éducation", status: "active", risk: "low", volume: 1250000, joined: "05/02/2026", ownerName: "Sylvain K.", ownerEmail: "sylvain@lauriers.bf" },
-    { id: "ENT-003", name: "Boutique Awa", sector: "Commerce", status: "active", risk: "medium", volume: 320000, joined: "18/03/2026", ownerName: "Awa T.", ownerEmail: "awa@boutique.bf" },
-    { id: "ENT-004", name: "Startup Faso", sector: "E-commerce", status: "pending", risk: "low", volume: 0, joined: "25/10/2026", ownerName: "Aminata M.", ownerEmail: "aminata@startup.bf" },
-    { id: "ENT-005", name: "Resto Chez Tanti", sector: "Restauration", status: "suspended", risk: "high", volume: 50000, joined: "02/08/2026", ownerName: "Tanti A.", ownerEmail: "tanti@resto.bf" },
+    { id: "ENT-001", name: "Secky Tech", sector: "Services", status: "active", risk: "low", volume: 850000, joined: "12/01/2026", ownerName: "Kofi B.", ownerEmail: "kofi@seckytech.com", accountType: "b2b" },
+    { id: "ENT-002", name: "École Les Lauriers", sector: "Éducation", status: "active", risk: "low", volume: 1250000, joined: "05/02/2026", ownerName: "Sylvain K.", ownerEmail: "sylvain@lauriers.bf", accountType: "b2b" },
+    { id: "ENT-003", name: "Boutique Awa", sector: "Commerce", status: "active", risk: "medium", volume: 320000, joined: "18/03/2026", ownerName: "Awa T.", ownerEmail: "awa@boutique.bf", accountType: "b2c" },
+    { id: "ENT-004", name: "Startup Faso", sector: "E-commerce", status: "pending", risk: "low", volume: 0, joined: "25/10/2026", ownerName: "Aminata M.", ownerEmail: "aminata@startup.bf", accountType: "b2c" },
+    { id: "ENT-005", name: "Resto Chez Tanti", sector: "Restauration", status: "suspended", risk: "high", volume: 50000, joined: "02/08/2026", ownerName: "Tanti A.", ownerEmail: "tanti@resto.bf", accountType: "b2c" },
   ] as Company[],
 
+  // Transactions
   transactions: [
     { id: "TX-1001", subject: "Cantine Octobre", reference: "CMD-1024", amount: 25000, status: "succeeded", operator: "Orange Money", date: "26/10/2026 10:45", merchantName: "Secky Tech", companyId: "ENT-001", type: "in", category: "Vente", fees: 250, feesSource: "real", source: "seckypay", note: "Paiement cantine" },
     { id: "TX-1003", subject: "Vente Marchandise", reference: "CMD-1026", amount: 12500, status: "succeeded", operator: "Moov Money", date: "25/10/2026 16:20", merchantName: "École Les Lauriers", companyId: "ENT-002", type: "in", category: "Vente", fees: 125, feesSource: "real", source: "seckypay" },
