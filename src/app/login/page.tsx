@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowRight, Lock, Mail, ChevronRight } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -33,30 +33,43 @@ export default function Login() {
   return (
     <div className="min-h-screen flex bg-[#F8FAFC]">
       
-      {/* Branding (Desktop) */}
-      <div className="hidden lg:flex w-1/2 bg-[#0A1633] relative overflow-hidden flex-col justify-between p-12">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secky-blue-600/30 rounded-full blur-[100px] -mr-40 -mt-40"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secky-cyan-400/20 rounded-full blur-[80px] -ml-20 -mb-20"></div>
+      {/* Côté Gauche : Image + Overlay branding (Desktop) */}
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden">
+        <img 
+          src="https://images.unsplash.com/photo-1765648684630-ac9c15ac98d5?q=80&w=1200&auto=format&fit=crop" 
+          alt="Commerçant africain" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Overlay dégradé */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1633] via-[#0A1633]/60 to-transparent"></div>
         
-        <Link href="/" className="relative z-10">
-          <img src="/logo.png" alt="SeckyPay" className="h-12 w-auto object-contain bg-white p-2 rounded-xl shadow-lg" />
-        </Link>
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          <Link href="/">
+            <img src="/logo.png" alt="SeckyPay" className="h-12 w-auto object-contain bg-white p-2 rounded-xl shadow-lg" />
+          </Link>
 
-        <div className="relative z-10 max-w-md">
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-6">
-            Encaissez vos paiements en quelques secondes.
-          </h1>
-          <p className="text-white/60 text-lg">
-            La solution de paiement mobile la plus simple et la plus sécurisée pour les entreprises en Afrique de l'Ouest.
-          </p>
-        </div>
+          <div className="max-w-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+              1 200+ commerçants nous font confiance
+            </div>
+            <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
+              Gérez vos encaissements mobiles en toute sérénité.
+            </h1>
+            <p className="text-white/80 text-base font-medium">
+              Centralisez Orange, Moov et Wave sur une seule plateforme sécurisée.
+            </p>
+          </div>
 
-        <div className="relative z-10 flex items-center gap-4 text-white/40 text-sm">
-          <span>© 2026 Secky Tech SARL</span>
+          <div className="flex items-center gap-4 text-white/60 text-xs">
+            <span>© 2026 Secky Tech SARL</span>
+            <span>•</span>
+            <span>Ouagadougou, Burkina Faso</span>
+          </div>
         </div>
       </div>
 
-      {/* Formulaire */}
+      {/* Côté Droit : Formulaire */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-secky-blue-100/50 rounded-full blur-[80px]"></div>
 
@@ -111,6 +124,27 @@ export default function Login() {
               {!isLoading && <ArrowRight size={20} className="ml-2" />}
             </button>
           </form>
+
+          {/* Séparateur Google OAuth */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-neutral-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-3 text-neutral-400 font-bold uppercase">ou</span>
+            </div>
+          </div>
+
+          {/* Bouton Google */}
+          <button className="w-full h-14 bg-white border-2 border-neutral-200 text-secky-blue-900 font-bold rounded-2xl flex items-center justify-center hover:bg-neutral-50 transition-all active:scale-95">
+            <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continuer avec Google
+          </button>
 
           <div className="text-center mt-8 pt-6 border-t border-neutral-100">
             <p className="text-sm font-medium text-neutral-500">Pas encore de compte ?</p>

@@ -1,17 +1,17 @@
 ﻿"use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, CheckCircle2, MessageCircle, Smartphone } from "lucide-react";
+import { ArrowLeft, ShieldCheck, CheckCircle2, MessageCircle, Smartphone, Mail, ChevronRight } from "lucide-react";
 
-export default function Verify() {
+function VerifyContent() {
   const router = useRouter();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [channel, setChannel] = useState("whatsapp");
+  const [showChannelSelector, setShowChannelSelector] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Auto-focus sur le premier champ au chargement
   useEffect(() => {
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
@@ -19,7 +19,6 @@ export default function Verify() {
   }, []);
 
   const handleChange = (index: number, value: string) => {
-    // Gérer le collage (paste)
     if (value.length > 1) {
       const pastedCode = value.slice(0, 6).split("");
       const newCode = [...code];
@@ -27,14 +26,9 @@ export default function Verify() {
         if (index + i < 6) newCode[index + i] = digit;
       });
       setCode(newCode);
-      
-      // Focus sur le dernier champ rempli ou le bouton
       const lastFilledIndex = Math.min(index + pastedCode.length, 5);
       inputRefs.current[lastFilledIndex]?.focus();
-      
-      if (newCode.every(d => d !== "")) {
-        handleSubmit();
-      }
+      if (newCode.every(d => d !== "")) handleSubmit();
       return;
     }
 
@@ -66,6 +60,14 @@ export default function Verify() {
     }, 1200);
   };
 
+  const getChannelIcon = (ch: string) => {
+    if (ch === "whatsapp") return MessageCircle;
+    if (ch === "sms") return Smartphone;
+    return Mail;
+  };
+
+  const ChannelIcon = getChannelIcon(channel);
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex justify-center py-8 px-4 md:py-12 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-secky-blue-600/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
@@ -82,7 +84,11 @@ export default function Verify() {
           </div>
           <h2 className="text-2xl font-extrabold text-secky-blue-900 mb-2">Vérifions votre identité</h2>
           <p className="text-sm font-medium text-neutral-500 leading-relaxed">
-            Nous avons envoyé un code à 6 chiffres au <br />
+            Nous avons envoyé un code à 6 chiffres via{" "}
+            <span className="font-bold text-secky-blue-900">
+              {channel === "whatsapp" ? "WhatsApp" : channel === "sms" ? "SMS" : "Email"}
+            </span>{" "}
+            au <br />
             <strong className="text-secky-blue-900">+226 70 • • • • 12</strong>
           </p>
         </div>
@@ -120,21 +126,70 @@ export default function Verify() {
             </div>
           )}
 
+          {/* Choix du canal */}
           <div className="mt-8 pt-6 border-t border-neutral-100">
-            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-3 text-center">Recevoir le code par</p>
-            <div className="flex gap-3">
-              <button onClick={() => setChannel("whatsapp")} className={`flex-1 h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all border-2 ${channel === "whatsapp" ? "border-[#25D366] bg-[#25D366]/5 text-[#1a9e4e]" : "border-neutral-200 text-neutral-500 hover:border-neutral-300"}`}>
-                <MessageCircle size={18} /> WhatsApp
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-3 text-center">Changer de canal</p>
+            
+            {!showChannelSelector ? (
+              <button 
+                onClick={() => setShowChannelSelector(true)}
+                className="w-full h-12 rounded-xl text-sm font-bold flex items-center justify-between px-4 bg-neutral-50 border-2 border-neutral-200 hover:border-secky-blue-300 transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <ChannelIcon size={18} className="text-secky-blue-600" />
+                  <span className="text-secky-blue-900">
+                    {channel === "whatsapp" ? "WhatsApp" : channel === "sms" ? "SMS" : "Email"}
+                  </span>
+                </div>
+                <ChevronRight size={18} className="text-neutral-400" />
               </button>
-              <button onClick={() => setChannel("sms")} className={`flex-1 h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all border-2 ${channel === "sms" ? "border-secky-blue-600 bg-secky-blue-50 text-secky-blue-600" : "border-neutral-200 text-neutral-500 hover:border-neutral-300"}`}>
-                <Smartphone size={18} /> SMS
-              </button>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {[
+                  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, desc: "Le plus rapide" },
+                  { id: "sms", label: "SMS", icon: Smartphone, desc: "Classique" },
+                  { id: "email", label: "Email", icon: Mail, desc: "Boîte mail" },
+                ].map((ch) => {
+                  const Icon = ch.icon;
+                  const isSelected = channel === ch.id;
+                  return (
+                    <button
+                      key={ch.id}
+                      onClick={() => { setChannel(ch.id); setShowChannelSelector(false); }}
+                      className={`w-full h-14 rounded-xl text-sm font-bold flex items-center justify-between px-4 transition-all border-2 ${
+                        isSelected 
+                          ? "bg-secky-blue-50 border-secky-blue-600" 
+                          : "bg-neutral-50 border-neutral-200 hover:border-secky-blue-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isSelected ? "bg-secky-blue-600 text-white" : "bg-white text-neutral-500"}`}>
+                          <Icon size={18} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-secky-blue-900">{ch.label}</p>
+                          <p className="text-[10px] text-neutral-500 font-medium">{ch.desc}</p>
+                        </div>
+                      </div>
+                      {isSelected && <CheckCircle2 size={20} className="text-secky-blue-600" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
         </div>
 
       </div>
     </div>
+  );
+}
+
+export default function Verify() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-10 h-10 border-4 border-secky-blue-600 border-t-transparent rounded-full"></div></div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }
