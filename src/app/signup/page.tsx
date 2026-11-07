@@ -2,18 +2,54 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft, User, Building2, MessageCircle, CheckCircle2, Globe, Radio, Users, Search, Briefcase, Handshake, Tv, MoreHorizontal } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, Building2, MessageCircle, CheckCircle2, Globe, Radio, Users, Search, Briefcase, Handshake, MoreHorizontal, Music2, Camera, Building, Video, MessageSquare, Calendar } from "lucide-react";
 
+// ===========================================
+// Sources de referral SPÉCIFIQUES
+// ===========================================
 const referralSources = [
-  { id: "social", label: "Réseaux sociaux", desc: "Facebook, Instagram, TikTok, LinkedIn", icon: Globe },
-  { id: "wordofmouth", label: "Bouche à oreille", desc: "Ami, collègue, famille", icon: Users },
-  { id: "google", label: "Recherche Google", desc: "J'ai cherché en ligne", icon: Search },
-  { id: "ads", label: "Publicité en ligne", desc: "Pub vue sur les réseaux", icon: Radio },
-  { id: "event", label: "Événement / Salon", desc: "Lors d'un événement", icon: Briefcase },
-  { id: "partner", label: "Partenaire / Revendeur", desc: "Recommandé par un partenaire", icon: Handshake },
-  { id: "tv", label: "Radio / TV", desc: "Vu ou entendu dans les médias", icon: Tv },
-  { id: "other", label: "Autre", desc: "Autre source", icon: MoreHorizontal },
+  // Réseaux sociaux
+  { id: "tiktok", label: "TikTok", desc: "@seckypay", icon: Music2, category: "social" },
+  { id: "facebook", label: "Facebook", desc: "Page ou groupe", icon: Globe, category: "social" },
+  { id: "instagram", label: "Instagram", desc: "Post ou story", icon: Camera, category: "social" },
+  { id: "linkedin", label: "LinkedIn", desc: "Post professionnel", icon: Building, category: "social" },
+  { id: "youtube", label: "YouTube", desc: "Vidéo ou tutoriel", icon: Video, category: "social" },
+  // En ligne
+  { id: "google", label: "Recherche Google", desc: "J'ai cherché en ligne", icon: Search, category: "online" },
+  { id: "ads", label: "Publicité en ligne", desc: "Bannière ou pub", icon: Radio, category: "online" },
+  // Bouche à oreille
+  { id: "friend", label: "Ami / Collègue", desc: "Recommandation", icon: Users, category: "personal" },
+  { id: "whatsapp", label: "WhatsApp", desc: "Groupe ou contact", icon: MessageSquare, category: "personal" },
+  // Événements
+  { id: "event", label: "Événement / Salon", desc: "Conférence", icon: Calendar, category: "event" },
+  { id: "partner", label: "Partenaire / Revendeur", desc: "Agréé SeckyPay", icon: Handshake, category: "event" },
+  // Autre
+  { id: "other", label: "Autre", desc: "Autre source", icon: MoreHorizontal, category: "other" },
 ];
+
+// ===========================================
+// Images par étape
+// ===========================================
+const stepData = {
+  1: {
+    image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop",
+    tagline: "Rejoignez la révolution du paiement mobile en Afrique de l'Ouest.",
+    subtitle: "1 200+ commerçants nous font déjà confiance",
+    badge: "Sans engagement · Prêt en 2 minutes",
+  },
+  2: {
+    image: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?q=80&w=1200&auto=format&fit=crop",
+    tagline: "Votre entreprise mérite les meilleurs outils.",
+    subtitle: "Centralisez Orange, Moov et Wave sur une seule plateforme sécurisée",
+    badge: "Compatible SYSCOHADA · PWA installable",
+  },
+  3: {
+    image: "https://plus.unsplash.com/premium_photo-1661938246250-bd8001caf450?q=80&w=1200&auto=format&fit=crop",
+    tagline: "Aidez-nous à mieux vous servir.",
+    subtitle: "Dites-nous comment vous nous avez découvert pour améliorer notre offre",
+    badge: "30 secondes · Facultatif",
+  },
+};
 
 export default function Signup() {
   const router = useRouter();
@@ -35,42 +71,51 @@ export default function Signup() {
     router.push("/verify");
   };
 
+  const currentStep = stepData[step as keyof typeof stepData];
+
   return (
     <div className="min-h-screen flex bg-[#F8FAFC]">
       
-      {/* Branding (Desktop) */}
-      <div className="hidden lg:flex w-1/2 bg-[#0A1633] relative overflow-hidden flex-col justify-between p-12">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secky-blue-600/30 rounded-full blur-[100px] -mr-40 -mt-40"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secky-cyan-400/20 rounded-full blur-[80px] -ml-20 -mb-20"></div>
+      {/* ========= Côté Gauche : Image dynamique par étape ========= */}
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden">
+        {/* Image qui change à chaque étape */}
+        <img 
+          key={step}
+          src={currentStep.image} 
+          alt="SeckyPay" 
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+        />
+        {/* Overlay dégradé */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1633] via-[#0A1633]/60 to-transparent"></div>
         
-        <Link href="/" className="relative z-10">
-          <img src="/logo.png" alt="SeckyPay" className="h-12 w-auto object-contain bg-white p-2 rounded-xl shadow-lg" />
-        </Link>
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          <Link href="/">
+            <img src="/logo.png" alt="SeckyPay" className="h-12 w-auto object-contain bg-white p-2 rounded-xl shadow-lg" />
+          </Link>
 
-        <div className="relative z-10 max-w-md">
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-6">
-            Rejoignez la révolution du paiement.
-          </h1>
-          <p className="text-white/60 text-lg mb-8">
-            Créez votre compte en moins de 2 minutes et commencez à encaisser dès aujourd'hui.
-          </p>
-          <div className="space-y-3">
-            {["Sans engagement", "Compatible Orange, Moov & Wave", "Comptabilité SYSCOHADA intégrée"].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-white/80">
-                <CheckCircle2 size={18} className="text-secky-cyan-400 shrink-0" />
-                <span className="font-medium">{item}</span>
-              </div>
-            ))}
+          <div className="max-w-md animate-fade-in-up" key={`text-${step}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+              {currentStep.badge}
+            </div>
+            <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
+              {currentStep.tagline}
+            </h1>
+            <p className="text-white/80 text-base font-medium">
+              {currentStep.subtitle}
+            </p>
           </div>
-        </div>
 
-        <div className="relative z-10 flex items-center gap-4 text-white/40 text-sm">
-          <span>© 2026 Secky Tech SARL</span>
+          <div className="flex items-center gap-4 text-white/60 text-xs">
+            <span>© 2026 Secky Tech SARL</span>
+            <span>•</span>
+            <span>Ouagadougou, Burkina Faso</span>
+          </div>
         </div>
       </div>
 
-      {/* Form (Mobile & Desktop) */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+      {/* ========= Côté Droit : Formulaire ========= */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 overflow-y-auto max-h-screen">
         <div className="w-full max-w-md">
           
           <div className="lg:hidden flex justify-center mb-8">
@@ -94,6 +139,7 @@ export default function Signup() {
 
           <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
             
+            {/* ========= ÉTAPE 1 : Vous ========= */}
             {step === 1 && (
               <div className="space-y-4 animate-fade-in-up">
                 <div className="mb-6">
@@ -164,6 +210,7 @@ export default function Signup() {
               </div>
             )}
 
+            {/* ========= ÉTAPE 2 : Entreprise ========= */}
             {step === 2 && (
               <div className="space-y-4 animate-fade-in-up">
                 <div className="mb-6">
@@ -214,6 +261,7 @@ export default function Signup() {
               </div>
             )}
 
+            {/* ========= ÉTAPE 3 : Sondage ========= */}
             {step === 3 && (
               <div className="space-y-4 animate-fade-in-up">
                 <div className="mb-6">
@@ -224,25 +272,86 @@ export default function Signup() {
                   <p className="text-sm text-neutral-500 font-medium mt-1">Aidez-nous à mieux vous connaître (facultatif).</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {referralSources.map((source) => {
-                    const Icon = source.icon;
-                    const isSelected = formData.referralSource === source.id;
-                    return (
-                      <button
-                        key={source.id}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, referralSource: source.id })}
-                        className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected ? "border-secky-blue-600 bg-secky-blue-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}
-                      >
-                        <div className={`w-8 h-8 rounded-lg mb-2 flex items-center justify-center ${isSelected ? "bg-secky-blue-600 text-white" : "bg-neutral-100 text-neutral-500"}`}>
-                          <Icon size={16} />
-                        </div>
-                        <p className={`text-xs font-bold ${isSelected ? "text-secky-blue-900" : "text-neutral-700"}`}>{source.label}</p>
-                        <p className="text-[10px] text-neutral-500 mt-0.5 leading-tight">{source.desc}</p>
-                      </button>
-                    );
-                  })}
+                {/* Catégorie : Réseaux sociaux */}
+                <div>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Réseaux sociaux</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {referralSources.filter(s => s.category === "social").map((source) => {
+                      const Icon = source.icon;
+                      const isSelected = formData.referralSource === source.id;
+                      return (
+                        <button
+                          key={source.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, referralSource: source.id })}
+                          className={`p-2.5 rounded-xl border-2 text-center transition-all ${isSelected ? "border-secky-blue-600 bg-secky-blue-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg mx-auto mb-1.5 flex items-center justify-center ${isSelected ? "bg-secky-blue-600 text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                            <Icon size={16} />
+                          </div>
+                          <p className={`text-[11px] font-bold leading-tight ${isSelected ? "text-secky-blue-900" : "text-neutral-700"}`}>{source.label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Catégorie : En ligne */}
+                <div>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">En ligne</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {referralSources.filter(s => s.category === "online").map((source) => {
+                      const Icon = source.icon;
+                      const isSelected = formData.referralSource === source.id;
+                      return (
+                        <button
+                          key={source.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, referralSource: source.id })}
+                          className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected ? "border-secky-blue-600 bg-secky-blue-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-secky-blue-600 text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                              <Icon size={14} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs font-bold leading-tight ${isSelected ? "text-secky-blue-900" : "text-neutral-700"}`}>{source.label}</p>
+                              <p className="text-[9px] text-neutral-500 mt-0.5">{source.desc}</p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Catégorie : Bouche à oreille + Événements + Autre */}
+                <div>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Bouche à oreille & Événements</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {referralSources.filter(s => s.category === "personal" || s.category === "event" || s.category === "other").map((source) => {
+                      const Icon = source.icon;
+                      const isSelected = formData.referralSource === source.id;
+                      return (
+                        <button
+                          key={source.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, referralSource: source.id })}
+                          className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected ? "border-secky-blue-600 bg-secky-blue-50" : "border-neutral-200 bg-white hover:border-neutral-300"}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-secky-blue-600 text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                              <Icon size={14} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs font-bold leading-tight ${isSelected ? "text-secky-blue-900" : "text-neutral-700"}`}>{source.label}</p>
+                              <p className="text-[9px] text-neutral-500 mt-0.5">{source.desc}</p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {formData.referralSource === "other" && (
